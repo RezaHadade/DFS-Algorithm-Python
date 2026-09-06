@@ -3,34 +3,58 @@
 graph = {
     'Arad': ('Zerind','Sibiu', 'Timisoara'),
     'Zerind': ('Arad', 'Oradea'),
-    'Sibiu': ('Arad', 'Fagaras', 'Rimniciu Vilcea'),
+    'Sibiu': ('Arad', 'Rimniciu Vilcea', 'Fagaras'),
     'Timisoara': ('Arad', 'Lugoj'),
     'Oradea': (),
     'Lugoj': (),
     'Fagaras': ('Sibiu', 'Bucharest'),
     'Rimniciu Vilcea': ('Sibiu', 'Pitesti'),
-    'Bucharest': ('Pitetsi', 'Fagaras'),
+    'Bucharest': ('Pitesti', 'Fagaras'),
     'Pitesti': ('Rimniciu Vilcea', 'Bucharest')
 }
-
-stack  = ['Arad']
-visited = {'Arad'}
-parent = {'Arad': None}    # for keeping the track of goal path
-
+start = 'Arad'
 goal = 'Bucharest'
 
-while stack:
-    
-    node = stack.pop()
-    if node == goal:
-        print(node)
-        break
-    
-    node_children = reversed(graph[node]) 
-     
-    for i in node_children:
-        if i not in visited:
-            visited.add(i)            # mark the node immediately
-            parent[i] = node       
-            stack.append(i)
 
+class Node:
+    def __init__(self, state, parent, depth):
+        self.state = state
+        self.parent = parent
+        self.depth = depth
+
+
+def expand(graph, node):
+     
+    children = graph[node.state]
+    children_nodes = []
+    
+    for child in children:
+        child_node = Node(child, node, node.depth+1)
+        children_nodes.append(child_node)
+    
+    return children_nodes
+
+
+stack = []                                      # LIFO frontier queue: push = append() , pop = pop()
+visited = set()                                 # Prevent redundant exploration
+path = []                                       # Goal path
+
+def DFS(graph, start, goal):    
+        
+    stack.append(Node(start, None, 0))
+    visited.add(start)           
+
+    while stack:
+        node = stack.pop()
+        
+        if node.state == goal:                  # Goal test at expansion time
+            return node
+        children = expand(graph, node)
+        children.reverse()
+        
+        for child in children:
+            if child.state not in visited:
+                visited.add(child.state)        # Mark as visisted when the node generates 
+                stack.append(child)
+    
+    return 'Failure'
