@@ -1,20 +1,4 @@
-'''Implementatiom of Depth-first EARCH IN Python, step by step'''
-
-graph = {
-    'Arad': ('Zerind','Sibiu', 'Timisoara'),
-    'Zerind': ('Arad', 'Oradea'),
-    'Sibiu': ('Arad', 'Rimniciu Vilcea', 'Fagaras'),
-    'Timisoara': ('Arad', 'Lugoj'),
-    'Oradea': (),
-    'Lugoj': (),
-    'Fagaras': ('Sibiu', 'Bucharest'),
-    'Rimniciu Vilcea': ('Sibiu', 'Pitesti'),
-    'Bucharest': ('Pitesti', 'Fagaras'),
-    'Pitesti': ('Rimniciu Vilcea', 'Bucharest')
-}
-start = 'Arad'
-goal = 'Bucharest'
-
+'''Depth-first Search'''
 
 class Node:
     def __init__(self, state, parent, depth):
@@ -23,9 +7,8 @@ class Node:
         self.depth = depth
 
 
-def expand(graph, node):
-     
-    children = graph[node.state]
+def expand(graph, node):   
+    children = graph.get(node.state, [])
     children_nodes = []
     
     for child in children:
@@ -35,12 +18,18 @@ def expand(graph, node):
     return children_nodes
 
 
-stack = []                                      # LIFO frontier queue: push = append() , pop = pop()
-visited = set()                                 # Prevent redundant exploration
-path = []                                       # Goal path
+def goal_path(node):
+    path = []
+    while node:
+        path.append(node.state)
+        node = node.parent
+    return path[::-1]
+ 
 
 def DFS(graph, start, goal):    
-        
+    stack = []                                      # LIFO frontier queue: push = append() , pop = pop()
+    visited = set()                                 # Prevent redundant exploration        
+    
     stack.append(Node(start, None, 0))
     visited.add(start)           
 
@@ -48,7 +37,8 @@ def DFS(graph, start, goal):
         node = stack.pop()
         
         if node.state == goal:                  # Goal test at expansion time
-            return node
+            return goal_path(node)
+            
         children = expand(graph, node)
         children.reverse()
         
